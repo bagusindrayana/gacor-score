@@ -1,4 +1,5 @@
 <script>
+    import { onMount } from "svelte";
     const arrayPemprov = [
         "acehprov.go.id",
         "baliprov.go.id",
@@ -39,6 +40,55 @@
         "sumselprov.go.id",
         "sumutprov.go.id",
     ];
+
+    /**
+     * @type {{
+     * domain: string,
+     *  hostname: string[],
+     *  judi: number
+     * links: string[]
+     * }[]}
+     */
+    let datas = [];
+
+    /**
+     * Fetch data from API
+     * @param {string} pemprov
+     */
+    async function fecthData(pemprov) {
+        /**
+         * @type {{
+         * domain: string,
+         *  hostname: string[],
+         *  judi: number
+         * links: string[]
+         * }}
+         */
+        let result = {
+            domain: pemprov,
+            hostname: [],
+            judi: 0,
+            links: [],
+        };
+        await fetch(`/data/${pemprov}.json`)
+            .then((response) => response.json())
+            .then((res) => {
+               
+                result.judi = res.length;
+                result.hostname = res.map((data) => new URL(data.link).hostname);
+                result.links = res.map((data) => data.link);
+            });
+        //remove duplocate hostname
+        result.hostname = [...new Set(result.hostname)];
+        return result;
+    }
+
+    onMount(async () => {
+        for (let pemprov of arrayPemprov) {
+            datas.push(await fecthData(pemprov));
+        }
+        datas = datas;
+    });
 </script>
 
 <div class="text-gray-200 w-full p-6">
@@ -82,27 +132,27 @@
                         </tr>
                     </thead>
                     <tbody class="[&amp;_tr:last-child]:border-0">
-                        {#each arrayPemprov as pemprov}
-                        <tr
-                            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                        >
-                            <td class="px-4 py-4 text-left align-middle">
-                                <a
-                                    href="https://{pemprov}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="text-blue-400 hover:underline"
-                                >
-                                    {pemprov}
-                                </a>
-                            </td>
-                            <td class="px-4 py-4 text-left align-middle">
-                                {Math.floor(Math.random() * 100)}
-                            </td>
-                            <td class="px-4 py-4 text-left align-middle">
-                                {Math.floor(Math.random() * 100)}
-                            </td>
-                        </tr>
+                        {#each datas as data}
+                            <tr
+                                class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                            >
+                                <td class="px-4 py-4 text-left align-middle">
+                                    <a
+                                        href={data.domain}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="text-blue-400 hover:underline"
+                                    >
+                                        {data.domain}
+                                    </a>
+                                </td>
+                                <td class="px-4 py-4 text-left align-middle">
+                                    {data.judi}
+                                </td>
+                                <td class="px-4 py-4 text-left align-middle">
+                                    {data.hostname.length}
+                                </td>
+                            </tr>
                         {/each}
                     </tbody>
                 </table>
