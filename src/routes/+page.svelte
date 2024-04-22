@@ -1,5 +1,6 @@
 <script>
     import { onMount } from "svelte";
+    import { DataTable } from "simple-datatables";
     const arrayPemprov = [
         "acehprov.go.id",
         "baliprov.go.id",
@@ -88,8 +89,32 @@
             datas.push(await fecthData(pemprov));
         }
         datas = datas;
+        const datatable = new DataTable("#myTable", {
+            searchable: true,
+            fixedHeight: true,
+            fixedColumns: true,
+            paging: true,
+            perPage: 100,
+            perPageSelect: [5, 10, 20, 50, 100],
+        });
+        /**
+         * @type {string[][]}
+         */
+        let newData = [];
+        datas.forEach((data) => {
+            newData.push([data.domain, data.judi.toString(), data.hostname.length.toString()]);
+        });
+        datatable.insert({
+            headings: ["Website URL", "Jumlah Situs Judi (Perkiraan)", "Jumlah Domain / Subdomain"],
+            data: newData,
+        });
     });
 </script>
+
+<svelte:head>
+    <title>Pemprov Yang Paling Gacor!</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+</svelte:head>
 
 <div class="text-gray-200 w-full p-6">
     <div class="dark flex flex-col w-full min-h-screen p-4 md:p-6 text-white">
@@ -99,63 +124,37 @@
                 Website Pemerintah Provinsi Yang Terindikasi Disusupi Situs Judi
             </p>
         </header>
-        <div class="flex flex-col gap-4 md:flex-row md:gap-6">
+        <!-- <div class="flex flex-col gap-4 md:flex-row md:gap-6">
             <div class="w-full md:w-1/3">
                 <input
                     class="flex h-10 rounded-md border border-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 w-full bg-gray-700 text-white placeholder-gray-400"
                     placeholder="Search by name or status"
                 />
             </div>
-        </div>
+        </div> -->
         <div class="mt-6">
-            <div class="relative w-full overflow-auto">
-                <table class="w-full caption-bottom text-sm text-gray-300">
-                    <thead class="[&amp;_tr]:border-b">
-                        <tr
-                            class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                        >
-                            <th
-                                class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                            >
-                                Website URL
-                            </th>
-                            <th
-                                class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                            >
-                                Jumlah Situs Judi (Perkiraan)
-                            </th>
-                            <th
-                                class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0"
-                            >
-                                Jumlah Domain/Subdomain
-                            </th>
+            <div class="w-full overflow-x-auto">
+                <table  id="myTable">
+                    <thead>
+                        <tr>
+                            <th>Website URL</th>
+                            <th>Jumlah Situs Judi (Perkiraan)</th>
+                            <th>Jumlah Domain / Subdomain</th>
                         </tr>
                     </thead>
-                    <tbody class="[&amp;_tr:last-child]:border-0">
-                        {#each datas as data}
-                            <tr
-                                class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
-                            >
-                                <td class="px-4 py-4 text-left align-middle">
-                                    <a
-                                        href={data.domain}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="text-blue-400 hover:underline"
-                                    >
-                                        {data.domain}
-                                    </a>
+                    <tbody>
+                        <!-- {#each datas as data}
+                            <tr>
+                                <td>
+                                    <a href={data.domain} target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">{data.domain}</a>
                                 </td>
-                                <td class="px-4 py-4 text-left align-middle">
-                                    {data.judi}
-                                </td>
-                                <td class="px-4 py-4 text-left align-middle">
-                                    {data.hostname.length}
-                                </td>
+                                <td>{data.judi}</td>
+                                <td>{data.hostname.length}</td>
                             </tr>
-                        {/each}
+                        {/each} -->
                     </tbody>
                 </table>
+                
             </div>
         </div>
     </div>
