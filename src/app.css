@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.datatable-selector {
+    background-color: #111827;
+}
+
+.datatable-input {
+    background-color: #111827;
+}
